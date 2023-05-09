@@ -114,6 +114,9 @@ __MACOSX/
 wandb/
 output/
 
-mmdetection/
+detectron2/
+#mmdetection/
 faster_rcnn/
 cocosplit/
+
+mmdetection/*.ipynb

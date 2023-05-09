@@ -20,13 +20,12 @@ from detectron2.model_zoo import get_config
 from detectron2.train.my_trainer import MyTrainer
 
 
-def RegisterDataset(data_path='../../dataset/'):
+def RegisterDataset(data_path='../../dataset'):
     try:
         register_coco_instances('coco_trash_train', {}, os.path.join(data_path, 'train.json'), data_path)
     except AssertionError:
         pass
     
-    # TODO : Validation dataset 등록
     try:
         register_coco_instances('coco_trash_test', {}, os.path.join(data_path, 'test.json'), data_path)
     except AssertionError:
@@ -35,7 +34,20 @@ def RegisterDataset(data_path='../../dataset/'):
     MetadataCatalog.get('coco_trash_train').thing_classes = ["General trash", "Paper", "Paper pack", "Metal", 
                                                             "Glass", "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing"]
 
+
     return
+
+
+def setup(args):
+    """
+    Create configs and perform basic setups.
+    """
+    cfg = get_cfg()
+    cfg.merge_from_file(args.config_file)
+    cfg.merge_from_list(args.opts)
+    cfg.freeze()
+    default_setup(cfg, args)
+    return cfg
 
 
 def train(cfg):
@@ -49,15 +61,23 @@ def train(cfg):
     trainer.train()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     parser = argparse.ArgumentParser()
     
     # Data and model checkpoints directories
     parser.add_argument("--config", type=str, default="my_configs/example_cfg.yaml", help="config file directory address")
+    parser.add_argument("--train_json", type=str, default="my_configs/example_cfg.yaml", help="config file directory address")
+    parser.add_argument("--config", type=str, default="my_configs/example_cfg.yaml", help="config file directory address")
+    parser.add_argument("--config", type=str, default="my_configs/example_cfg.yaml", help="config file directory address")
+    parser.add_argument("--config", type=str, default="my_configs/example_cfg.yaml", help="config file directory address")
+    parser.add_argument("--config", type=str, default="my_configs/example_cfg.yaml", help="config file directory address")
+    parser.add_argument("--config", type=str, default="my_configs/example_cfg.yaml", help="config file directory address")
+
     args = parser.parse_args()
 
     # load config
-    cfg = get_config(args.config)
+    cfg = setup(args)
+    #cfg = get_config(args.config)
     ensure_dir(cfg.OUTPUT_DIR)
 
     # train
