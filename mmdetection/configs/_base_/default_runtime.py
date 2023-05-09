@@ -4,6 +4,13 @@ log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
+        dict(type='WandbLoggerHook',interval=1000,
+            init_kwargs=dict(
+                project='vip_cv19',
+                entity = 'ENTITY 이름',
+                name = '실험할때마다 RUN에 찍히는 이름'
+            ),
+            )
         # dict(type='TensorboardLoggerHook')
     ])
 # yapf:enable
