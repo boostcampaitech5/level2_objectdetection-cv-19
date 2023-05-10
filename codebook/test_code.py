@@ -131,11 +131,11 @@ def check_dataset_avail(df_ori, df_train, df_val):
 
 
 ### Check whether something is wrong
-#check_dataset_avail(init_df, train_df, val_df)
+check_dataset_avail(init_df, train_df, val_df)
 
-clean_dataset(train_df, val_df, 40)
-clean_dataset(train_df, val_df, 35)
-clean_dataset(train_df, val_df, 30)
+# clean_dataset(train_df, val_df, 40)
+# clean_dataset(train_df, val_df, 35)
+# clean_dataset(train_df, val_df, 30)
 
 # train_fold1 기준으로 cleaning 진행하자!
 # The number of boxes over 40 (Total: 14)
