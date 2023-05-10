@@ -113,6 +113,8 @@ __MACOSX/
 # logs, wandb results
 wandb/
 output/
+work_dirs/
+log.txt
 
 #mmdetection/
 mmdetection/*.ipynb
