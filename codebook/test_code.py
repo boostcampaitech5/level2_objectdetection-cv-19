@@ -46,8 +46,8 @@ def df_gen(coco_obj):
 
 ### Dataframe generation
 init_train = COCO('./dataset/coco_annotations.json')
-coco_train = COCO('./dataset/30_train_fold1.json')   #train_fold0
-coco_val   = COCO('./dataset/val_fold1.json')     #val_fold0  
+coco_train = COCO('./dataset/35_train_fold1.json')   #train_fold0
+coco_val   = COCO('./dataset/val_fold1.json')        #val_fold0  
 
 init_df = df_gen(init_train)
 train_df = df_gen(coco_train)
@@ -127,15 +127,15 @@ def check_dataset_avail(df_ori, df_train, df_val):
     check_num_box(df_ori, df_train, df_val)
     check_img_dup_and_cls(df_ori, df_train, df_val)
     check_area(df_train, df_val)
-    clean_dataset(train_df, val_df, 40)
+    #clean_dataset(train_df, val_df, 40)
 
 
 ### Check whether something is wrong
 check_dataset_avail(init_df, train_df, val_df)
 
-# clean_dataset(train_df, val_df, 40)
-# clean_dataset(train_df, val_df, 35)
-# clean_dataset(train_df, val_df, 30)
+clean_dataset(train_df, val_df, 40)
+clean_dataset(train_df, val_df, 35)
+clean_dataset(train_df, val_df, 30)
 
 # train_fold1 기준으로 cleaning 진행하자!
 # The number of boxes over 40 (Total: 14)

@@ -25,13 +25,21 @@ for fold, (train_index, val_index) in enumerate(skf.split(areas, classes)):
     val_ann = {'images': [], 'annotations': [], 'categories': annotations['categories']}
 
     # Add images and annotations to corresponding set
+    tr_img_lst = set()
+    val_img_lst = set()
     for index, ann in enumerate(annotations['annotations']):
-        image_id = ann['image_id']
+        image_id = ann['image_id'] # annotation을 차례로 가져옴
+        #print('train_idx', train_index)
+        #print('val_idx', val_index)
         if image_id in train_index:
-            train_ann['images'].append(annotations['images'][image_id])
+            if image_id not in tr_img_lst:
+                tr_img_lst.add(image_id) # 겹치는 idx면 images에 저장하지 않도록
+                train_ann['images'].append(annotations['images'][image_id])
             train_ann['annotations'].append(ann)
         elif image_id in val_index:
-            val_ann['images'].append(annotations['images'][image_id])
+            if image_id not in val_img_lst:
+                val_img_lst.add(image_id)
+                val_ann['images'].append(annotations['images'][image_id])
             val_ann['annotations'].append(ann)
 
     # Save train and validation sets as separate json files

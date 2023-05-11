@@ -4,11 +4,12 @@ import os
 from pycocotools.coco import COCO
 from test_code import df_gen
 
-coco_path = './dataset/30_train_fold1.json'
+coco_path = './dataset/35_train_fold1.json'
 coco_train = COCO(coco_path)   #train_fold1
 
 df = df_gen(coco_train)
 num_series = df.groupby('image_id')["class_id"].apply(lambda x: len(x)).sort_values(ascending=False)
+#print(num_series)
 
 std = 30
 save_name = './dataset/' + str(std) + '_train_fold1.json'
