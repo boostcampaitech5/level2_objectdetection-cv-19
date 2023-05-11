@@ -1,4 +1,5 @@
 import os
+import copy
 import json
 import pandas as pd
 
@@ -43,14 +44,14 @@ def df_gen(coco_obj):
     return df
 
 
-coco_path = './dataset/clean_30_train_fold1.json' #'./dataset/tmp/train_fold1.json'
+coco_path = './dataset/tmp/train_fold1.json' #'./dataset/tmp/train_fold1.json'
 coco_train = COCO(coco_path)
 df = df_gen(coco_train)
 
 num_series = df.groupby('image_id')["class_id"].apply(lambda x: len(x)).sort_values(ascending=False)
 #print(num_series)
 
-std = 30
+std = 40
 save_name = './dataset/clean_' + str(std) + '_train_fold1.json'
 image_id_to_remove = list(int(i.split('/')[-1][:4]) for i in num_series[num_series>=std].index)  # 삭제하고자 하는 이미지 ID
 print(image_id_to_remove)
@@ -58,15 +59,16 @@ print(image_id_to_remove)
 with open(coco_path, 'r') as f:
     coco_data = json.load(f)
 
+copy_coco = copy.deepcopy(coco_data)
+
 # 이미지 삭제
-for image in coco_data['images']:
+for image in copy_coco['images']:
     if image['id'] in image_id_to_remove:
         #print(image['id'])
         coco_data['images'].remove(image)
-        break
 
 # 어노테이션 삭제
-for annotation in coco_data['annotations']:
+for annotation in copy_coco['annotations']:
     if annotation['image_id'] in image_id_to_remove:
         #print(annotation['image_id'])
         coco_data['annotations'].remove(annotation)

@@ -117,3 +117,4 @@ output/
 #mmdetection/
 mmdetection/*.ipynb
 dataset/
+dataset_yolo/
