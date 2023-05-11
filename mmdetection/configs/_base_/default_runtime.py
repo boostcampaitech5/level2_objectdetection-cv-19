@@ -7,7 +7,7 @@ log_config = dict(
         dict(
             type="MMDetWandbHook",
             interval=100,
-            init_kwargs=dict(project="vip_cv19", name="test1"),
+            init_kwargs=dict(entity="vip_cv19", project="object-detction", name="test2"),
             by_epoch=True,
             num_eval_images=100,
             # 평가에 사용된 총 이미지 수입니다.값이 0이면 validation_data_path에 있는 모든 이미지가 평가에 사용됩니다.
