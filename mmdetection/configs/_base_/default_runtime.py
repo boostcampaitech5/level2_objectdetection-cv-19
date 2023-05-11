@@ -4,6 +4,19 @@ log_config = dict(
     interval=50,
     hooks=[
         dict(type="TextLoggerHook"),
+        dict(
+            type="MMDetWandbHook",
+            interval=100,
+            init_kwargs=dict(entity="vip_cv19", project="object_detection", name="test2"),
+            by_epoch=True,
+            num_eval_images=100,
+            # 평가에 사용된 총 이미지 수입니다.값이 0이면 validation_data_path에 있는 모든 이미지가 평가에 사용됩니다.
+            log_checkpoint=True,
+            log_checkpoint_metadata=True,
+            # config=vars(args),
+            # TODO: wandb logging 할때 config.json에서 name 가져와서 넣어줘야함
+            # 여기서 init_kwargs는 wandb.init에 전달된다.
+        )
         # dict(type='TensorboardLoggerHook')
     ],
 )

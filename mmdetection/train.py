@@ -17,6 +17,8 @@ def train():
 
     # Custom config 로드
     cfg = TrainCustomConfig()
+    #meta = dict()
+    #meta["exp_name"] = "custom/custom_config.py"
 
     # dataset 로드
     datasets = [build_dataset(cfg.data.train)]

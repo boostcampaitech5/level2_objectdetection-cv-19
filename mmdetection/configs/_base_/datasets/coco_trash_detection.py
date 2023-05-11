@@ -1,4 +1,4 @@
-# dataset settings
+
 dataset_type = 'CocoDataset'
 data_root = '/opt/ml/dataset/'
 img_norm_cfg = dict(
