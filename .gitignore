@@ -115,7 +115,12 @@ __MACOSX/
 wandb/
 output/
 work_dirs/
-
 #mmdetection/
 mmdetection/*.ipynb
 
+log.txt
+
+#mmdetection/
+mmdetection/*.ipynb
+dataset/
+dataset_yolo/

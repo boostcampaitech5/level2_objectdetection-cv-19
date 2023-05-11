@@ -1,7 +1,6 @@
 from mmcv import Config
 from mmdet.utils import get_device
 
-
 def TrainCustomConfig(data_path="../../dataset/"):
     # base config file(faster_rcnn) 로드
     cfg = Config.fromfile("./configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py")
@@ -39,7 +38,6 @@ def TrainCustomConfig(data_path="../../dataset/"):
     cfg.data.test.img_prefix = data_path
     cfg.data.test.ann_file = data_path + "test.json"  # test json 정보
     cfg.data.test.pipeline[1]["img_scale"] = (512, 512)  # Resize
-
     cfg.data.samples_per_gpu = 4
 
     cfg.seed = 2022
@@ -53,7 +51,6 @@ def TrainCustomConfig(data_path="../../dataset/"):
     cfg.device = get_device()
 
     return cfg
-
 
 def TestCustomConfig(data_path="../../dataset/"):
     # base config file(faster_rcnn) 로드
