@@ -113,8 +113,6 @@ __MACOSX/
 # logs, wandb results
 wandb/
 output/
-work_dirs/
-log.txt
 
 #mmdetection/
 mmdetection/*.ipynb
@@ -124,5 +122,3 @@ runs/
 yolov8/*.csv
 yolov8/*.pt
 yolov8/=*
-dataset/
-dataset_yolo/

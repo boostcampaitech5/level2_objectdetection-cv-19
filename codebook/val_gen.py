@@ -1,49 +1,51 @@
+# code for generation validation set
+
 import json
 import numpy as np
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedGroupKFold
+import pandas as pd
+from collections import Counter
 
-# Load COCO annotations file
-with open('./dataset/coco_annotations.json', 'r') as f:
-    annotations = json.load(f)
+# load json: modify the path to your own ‘train.json’ file
+annotation = '../dataset/train.json'
 
+with open(annotation) as f: 
+    data = json.load(f)
 
-# Extract bounding box areas and classes
-areas = []
-classes = []
-for annotation in annotations['annotations']:
-    areas.append(annotation['bbox'][2] * annotation['bbox'][3])
-    classes.append(annotation['category_id'])
+var = [(ann['image_id'], ann['category_id']) for ann in data['annotations']]
+X = np.ones((len(data['annotations']),1))
+y = np.array([v[1] for v in var])
+groups = np.array([v[0] for v in var])
 
-# Convert areas to numpy array for easier manipulation
-areas = np.array(areas)
+cv = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=411)
 
-# Perform stratified k-fold splitting based on area and class
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-for fold, (train_index, val_index) in enumerate(skf.split(areas, classes)):
-    # Create train and validation sets
-    train_ann = {'images': [], 'annotations': [], 'categories': annotations['categories']}
-    val_ann = {'images': [], 'annotations': [], 'categories': annotations['categories']}
+# for train_idx, val_idx in cv.split(X, y, groups):
+#     print("TRAIN:", groups[train_idx])
+#     print(" ", y[train_idx])
+#     print(" TEST:", groups[val_idx])
+#     print(" ", y[val_idx])
+    
 
-    # Add images and annotations to corresponding set
-    tr_img_lst = set()
-    val_img_lst = set()
-    for index, ann in enumerate(annotations['annotations']):
-        image_id = ann['image_id'] # annotation을 차례로 가져옴
-        #print('train_idx', train_index)
-        #print('val_idx', val_index)
-        if image_id in train_index:
-            if image_id not in tr_img_lst:
-                tr_img_lst.add(image_id) # 겹치는 idx면 images에 저장하지 않도록
-                train_ann['images'].append(annotations['images'][image_id])
-            train_ann['annotations'].append(ann)
-        elif image_id in val_index:
-            if image_id not in val_img_lst:
-                val_img_lst.add(image_id)
-                val_ann['images'].append(annotations['images'][image_id])
-            val_ann['annotations'].append(ann)
+def get_distribution(y):
+    y_distr = Counter(y)
+    y_vals_sum = sum(y_distr.values())
 
-    # Save train and validation sets as separate json files
-    with open(f'train_fold{fold}.json', 'w') as f:
-        json.dump(train_ann, f)
-    with open(f'val_fold{fold}.json', 'w') as f:
-        json.dump(val_ann, f)
+    return [f'{y_distr[i]/y_vals_sum:.2%}' for i in range(np.max(y) +1)]
+
+distrs = [get_distribution(y)]
+index = ['training set']
+
+for fold_ind, (train_idx, val_idx) in enumerate(cv.split(X,y, groups)):
+    train_y, val_y = y[train_idx], y[val_idx]
+    train_gr, val_gr = groups[train_idx], groups[val_idx]
+
+    assert len(set(train_gr) & set(val_gr)) == 0 
+    distrs.append(get_distribution(train_y))
+
+    distrs.append(get_distribution(val_y))
+    index.append(f'train - fold{fold_ind}')
+    index.append(f'val - fold{fold_ind}')
+
+categories = [d['name'] for d in data['categories']]
+df = pd.DataFrame(distrs, index=index, columns = [categories[i] for i in range(np.max(y) + 1)])
+print(df)
