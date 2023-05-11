@@ -1,4 +1,4 @@
-# Ultralytics YOLO 🚀, GPL-3.0 license
+# Ultralytics YOLO 🚀, AGPL-3.0 license
 import contextlib
 import re
 import shutil
@@ -18,13 +18,13 @@ TASKS = 'detect', 'segment', 'classify', 'pose'
 TASK2DATA = {
     'detect': 'coco128.yaml',
     'segment': 'coco128-seg.yaml',
-    'pose': 'coco128-pose.yaml',
-    'classify': 'imagenet100'}
+    'classify': 'imagenet100',
+    'pose': 'coco8-pose.yaml'}
 TASK2MODEL = {
     'detect': 'yolov8n.pt',
     'segment': 'yolov8n-seg.pt',
-    'pose': 'yolov8n-pose.yaml',
-    'classify': 'yolov8n-cls.pt'}  # temp
+    'classify': 'yolov8n-cls.pt',
+    'pose': 'yolov8n-pose.pt'}
 
 CLI_HELP_MSG = \
     f"""
@@ -63,16 +63,16 @@ CLI_HELP_MSG = \
     """
 
 # Define keys for arg type checks
-CFG_FLOAT_KEYS = 'warmup_epochs', 'box', 'cls', 'dfl', 'degrees', 'shear', 'fl_gamma'
+CFG_FLOAT_KEYS = 'warmup_epochs', 'box', 'cls', 'dfl', 'degrees', 'shear'
 CFG_FRACTION_KEYS = ('dropout', 'iou', 'lr0', 'lrf', 'momentum', 'weight_decay', 'warmup_momentum', 'warmup_bias_lr',
                      'label_smoothing', 'hsv_h', 'hsv_s', 'hsv_v', 'translate', 'scale', 'perspective', 'flipud',
                      'fliplr', 'mosaic', 'mixup', 'copy_paste', 'conf', 'iou')  # fractional floats limited to 0.0 - 1.0
 CFG_INT_KEYS = ('epochs', 'patience', 'batch', 'workers', 'seed', 'close_mosaic', 'mask_ratio', 'max_det', 'vid_stride',
-                'line_thickness', 'workspace', 'nbs', 'save_period')
-CFG_BOOL_KEYS = ('save', 'exist_ok', 'verbose', 'deterministic', 'single_cls', 'image_weights', 'rect', 'cos_lr',
-                 'overlap_mask', 'val', 'save_json', 'save_hybrid', 'half', 'dnn', 'plots', 'show', 'save_txt',
-                 'save_conf', 'save_crop', 'show_labels', 'show_conf', 'visualize', 'augment', 'agnostic_nms',
-                 'retina_masks', 'boxes', 'keras', 'optimize', 'int8', 'dynamic', 'simplify', 'nms', 'v5loader')
+                'line_width', 'workspace', 'nbs', 'save_period')
+CFG_BOOL_KEYS = ('save', 'exist_ok', 'verbose', 'deterministic', 'single_cls', 'rect', 'cos_lr', 'overlap_mask', 'val',
+                 'save_json', 'save_hybrid', 'half', 'dnn', 'plots', 'show', 'save_txt', 'save_conf', 'save_crop',
+                 'show_labels', 'show_conf', 'visualize', 'augment', 'agnostic_nms', 'retina_masks', 'boxes', 'keras',
+                 'optimize', 'int8', 'dynamic', 'simplify', 'nms', 'v5loader')
 
 
 def cfg2dict(cfg):
@@ -152,6 +152,9 @@ def _handle_deprecation(custom):
         if key == 'hide_conf':
             deprecation_warn(key, 'show_conf')
             custom['show_conf'] = custom.pop('hide_conf') == 'False'
+        if key == 'line_thickness':
+            deprecation_warn(key, 'line_width')
+            custom['line_width'] = custom.pop('line_thickness')
 
     return custom
 
@@ -393,6 +396,7 @@ def entrypoint(debug=''):
 
 # Special modes --------------------------------------------------------------------------------------------------------
 def copy_default_cfg():
+    """Copy and create a new default configuration file with '_copy' appended to its name."""
     new_file = Path.cwd() / DEFAULT_CFG_PATH.name.replace('.yaml', '_copy.yaml')
     shutil.copy2(DEFAULT_CFG_PATH, new_file)
     LOGGER.info(f'{DEFAULT_CFG_PATH} copied to {new_file}\n'
@@ -400,5 +404,5 @@ def copy_default_cfg():
 
 
 if __name__ == '__main__':
-    # entrypoint(debug='yolo predict model=yolov8n.pt')
+    # Example Usage: entrypoint(debug='yolo predict model=yolov8n.pt')
     entrypoint(debug='')
