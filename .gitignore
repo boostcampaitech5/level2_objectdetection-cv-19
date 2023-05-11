@@ -116,3 +116,9 @@ output/
 
 #mmdetection/
 mmdetection/*.ipynb
+
+#yolov8/
+runs/
+yolov8/*.csv
+yolov8/*.pt
+yolov8/=*
