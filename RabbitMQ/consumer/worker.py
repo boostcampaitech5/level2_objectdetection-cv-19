@@ -5,12 +5,8 @@ import shutil
 import subprocess
 from dotenv import load_dotenv
 
-# 현재 위치로 작업 디렉토리 변경
-dir_path = os.path.dirname(os.path.abspath(__file__))
-os.chdir(dir_path)
-
 # .env 로드 (HOST_NAME and Discord Hook URL)
-load_dotenv()
+load_dotenv("../.env")
 discord_log_channel = os.environ.get("discord_log_channel")
 discord_error_channel = os.environ.get("discord_error_channel")
 HOST_NAME = os.environ.get("HOST_NAME")
@@ -51,7 +47,7 @@ def trainer(config_path):
     discord_notice(discord_log_channel, config, "TRAIN START")
 
     # 모델 학습 커맨드 실행
-    command = f"python train.py -c {config_path}"
+    command = f"python train_example.py -c {config_path}"
     process = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     process.wait()
     error_message = process.stderr.read().decode("EUC-KR", errors="ignore")
@@ -79,3 +75,13 @@ def trainer(config_path):
             f.write(error_message)
         discord_notice(discord_log_channel, config, "TRAIN FINISH", status="FAILURE")
         discord_notice(discord_error_channel, config, "ERROR", error_msg=error_message)
+
+
+# Message를 수신하고 수행할 작업 명시
+def worker(message):
+    # message를 yaml 파일로 저장
+    with open("recieve.yaml", "w", encoding="utf-8") as f:
+        f.write(message)
+    
+    # Model Trainer 호출
+    trainer("recieve.yaml")

@@ -3,7 +3,8 @@ import pika
 import worker
 from dotenv import load_dotenv
 
-load_dotenv("../")
+# .env 로드
+load_dotenv("../.env")
 ip = os.environ.get("ip")
 port = os.environ.get("port")
 vhost = os.environ.get("vhost")
@@ -30,19 +31,15 @@ class Consumer:
         )
 
     def callback(channel, method_frame, header_frame, body):
-        print(f"Received Config...", end=" ")
+        print(f"Received Message...", end=" ")
 
         # binary message를 utf-8로 decoding
         message = body.decode("utf-8", errors="ignore")
 
-        # message를 yaml 파일로 저장
-        with open("recieve.yaml", "w", encoding="utf-8") as f:
-            f.write(message)
+        # worker 호출
+        worker.worker(message)
 
-        # Model Trainer 호출 (arg: model config path)
-        worker.trainer("recieve.yaml")
-
-        # Trainer 작업이 끝난 후에 브로커로 ACK 전달
+        # worker 작업이 끝난 후에 브로커로 ACK 전달
         channel.basic_ack(delivery_tag=method_frame.delivery_tag)
 
         print("Done")
