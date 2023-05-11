@@ -114,6 +114,15 @@ __MACOSX/
 # logs, wandb results
 wandb/
 output/
+
+#mmdetection/
+mmdetection/*.ipynb
+
+#yolov8/
+runs/
+yolov8/*.csv
+yolov8/*.pt
+yolov8/=*
 work_dirs/
 #mmdetection/
 mmdetection/*.ipynb
