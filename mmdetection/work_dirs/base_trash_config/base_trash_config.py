@@ -223,7 +223,8 @@ log_config = dict(
         dict(
             type='MMDetWandbHook',
             interval=100,
-            init_kwargs=dict(project='vip_cv19', name='test1'),
+            init_kwargs=dict(
+                entity='vip_cv19', project='object-detction', name='test2'),
             by_epoch=True,
             num_eval_images=100,
             log_checkpoint=True,
