@@ -123,6 +123,7 @@ log.txt
 
 #mmdetection/
 mmdetection/*.ipynb
+mmdetection/artifacts/
 
 #yolov8/
 runs/
@@ -131,4 +132,6 @@ yolov8/*.pt
 yolov8/=*
 dataset/
 dataset_yolo/
+
+#eda
 EDA/
