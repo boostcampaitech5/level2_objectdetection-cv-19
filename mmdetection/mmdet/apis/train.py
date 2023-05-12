@@ -192,7 +192,7 @@ def train_detector(model, dataset, cfg, distributed=False, validate=False, times
         if isinstance(runner, EpochBasedRunner):
             runner.register_hook(DistSamplerSeedHook())
 
-    hook = EarlyStoppingHook(monitor="loss", patience=3, by_epoch=True)
+    hook = EarlyStoppingHook(monitor="loss", patience=10, by_epoch=True)
     runner.register_hook(hook)
 
     # register eval hooks

@@ -57,7 +57,7 @@ class EarlyStoppingHook(Hook):
     def __init__(
         self,
         monitor: str = "loss",
-        phase: str = "train",
+        phase: str = "val",
         min_delta: float = 0.0,
         patience: int = 10,
         verbose: bool = False,
@@ -115,7 +115,7 @@ class EarlyStoppingHook(Hook):
         if not self.by_epoch or self.phase == "val":
             return
         runner.log_buffer.average()
-        self._run_early_stopping_check(runner, runner.log_buffer.output)
+        #self._run_early_stopping_check(runner, runner.log_buffer.output)
 
     def after_val_iter(self, runner):
         if self.by_epoch or self.phase == "train":
@@ -124,6 +124,7 @@ class EarlyStoppingHook(Hook):
         self._run_early_stopping_check(runner, runner.log_buffer.output)
 
     def after_val_epoch(self, runner):
+        print(self.phase)
         if not self.by_epoch or self.phase == "train":
             return
         runner.log_buffer.average()
