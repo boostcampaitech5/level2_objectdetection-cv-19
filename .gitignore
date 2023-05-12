@@ -119,7 +119,7 @@ work_dirs/
 #mmdetection/
 mmdetection/*.ipynb
 
-log.txt
+log*.txt
 
 #mmdetection/
 mmdetection/*.ipynb
@@ -132,3 +132,5 @@ yolov8/=*
 dataset/
 dataset_yolo/
 EDA/
+
+artifacts/
