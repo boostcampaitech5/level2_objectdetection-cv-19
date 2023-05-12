@@ -6,14 +6,14 @@ _base_ = [
 ]
 # schedule_adamw_cosine
 
-exp_name = "MM_base_config"
+exp_name = "MM_baseline_train35"
 worker = "jisu"
 
 batch_size = 4
 max_epochs = 50
 
 work_dir = "/opt/ml"
-train_annotation = "clean_40_train_fold1.json"
+train_annotation = "clean_35_train_fold1.json"
 val_annotation = "val_fold1.json"
 
 log_config = dict(

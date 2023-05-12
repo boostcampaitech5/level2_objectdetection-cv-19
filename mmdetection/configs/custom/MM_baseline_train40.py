@@ -6,7 +6,7 @@ _base_ = [
 ]
 # schedule_adamw_cosine
 
-exp_name = "MM_base_config"
+exp_name = "MM_baseline_train40"
 worker = "jisu"
 
 batch_size = 4

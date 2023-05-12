@@ -1,12 +1,12 @@
 _base_ = [
-    "../_base_/models/faster_rcnn_r50_fpn.py",
+    "../_base_/models/cascade_rcnn_r50_fpn.py",
     "../_base_/datasets/coco_trash_detection.py",
     "../_base_/schedules/schedule_1x.py",
     "../_base_/default_trash_runtime.py",
 ]
 # schedule_adamw_cosine
 
-exp_name = "MM_base_config"
+exp_name = "MM_cascade_rcnn_train35"
 worker = "jisu"
 
 batch_size = 4
