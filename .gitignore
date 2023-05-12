@@ -26,6 +26,7 @@ wheels/
 *.egg
 
 
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -122,5 +123,12 @@ log.txt
 
 #mmdetection/
 mmdetection/*.ipynb
+
+#yolov8/
+runs/
+yolov8/*.csv
+yolov8/*.pt
+yolov8/=*
 dataset/
 dataset_yolo/
+EDA/
