@@ -1,4 +1,4 @@
-# Ultralytics YOLO 🚀, GPL-3.0 license
+# Ultralytics YOLO 🚀, AGPL-3.0 license
 
 import contextlib
 import inspect
@@ -8,14 +8,15 @@ import platform
 import re
 import subprocess
 import sys
-import tempfile
 import threading
+import urllib
 import uuid
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Union
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import yaml
@@ -101,6 +102,7 @@ np.set_printoptions(linewidth=320, formatter={'float_kind': '{:11.5g}'.format}) 
 cv2.setNumThreads(0)  # prevent OpenCV from multithreading (incompatible with PyTorch DataLoader)
 os.environ['NUMEXPR_MAX_THREADS'] = str(NUM_THREADS)  # NumExpr max threads
 os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'  # for deterministic training
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # suppress verbose TF compiler warnings in Colab
 
 
 class SimpleClass:
@@ -114,7 +116,7 @@ class SimpleClass:
         attr = []
         for a in dir(self):
             v = getattr(self, a)
-            if not callable(v) and not a.startswith('__'):
+            if not callable(v) and not a.startswith('_'):
                 if isinstance(v, SimpleClass):
                     # Display only the module and class name for subclasses
                     s = f'{a}: {v.__module__}.{v.__class__.__name__} object'
@@ -162,10 +164,45 @@ class IterableSimpleNamespace(SimpleNamespace):
         return getattr(self, key, default)
 
 
+def plt_settings(rcparams={'font.size': 11}, backend='Agg'):
+    """
+    Decorator to temporarily set rc parameters and the backend for a plotting function.
+
+    Usage:
+        decorator: @plt_settings({"font.size": 12})
+        context manager: with plt_settings({"font.size": 12}):
+
+    Args:
+        rcparams (dict): Dictionary of rc parameters to set.
+        backend (str, optional): Name of the backend to use. Defaults to 'Agg'.
+
+    Returns:
+        callable: Decorated function with temporarily set rc parameters and backend.
+    """
+
+    def decorator(func):
+        """Decorator to apply temporary rc parameters and backend to a function."""
+
+        def wrapper(*args, **kwargs):
+            """Sets rc parameters and backend, calls the original function, and restores the settings."""
+            original_backend = plt.get_backend()
+            plt.switch_backend(backend)
+
+            with plt.rc_context(rcparams):
+                result = func(*args, **kwargs)
+
+            plt.switch_backend(original_backend)
+            return result
+
+        return wrapper
+
+    return decorator
+
+
 def set_logging(name=LOGGING_NAME, verbose=True):
-    # sets up logging for the given name
+    """Sets up logging for the given name."""
     rank = int(os.getenv('RANK', -1))  # rank in world for Multi-GPU trainings
-    level = logging.INFO if verbose and rank in (-1, 0) else logging.ERROR
+    level = logging.INFO if verbose and rank in {-1, 0} else logging.ERROR
     logging.config.dictConfig({
         'version': 1,
         'disable_existing_loggers': False,
@@ -184,13 +221,25 @@ def set_logging(name=LOGGING_NAME, verbose=True):
                 'propagate': False}}})
 
 
+class EmojiFilter(logging.Filter):
+    """
+    A custom logging filter class for removing emojis in log messages.
+
+    This filter is particularly useful for ensuring compatibility with Windows terminals
+    that may not support the display of emojis in log messages.
+    """
+
+    def filter(self, record):
+        """Filter logs by emoji unicode characters on windows."""
+        record.msg = emojis(record.msg)
+        return super().filter(record)
+
+
 # Set logger
 set_logging(LOGGING_NAME, verbose=VERBOSE)  # run before defining LOGGER
 LOGGER = logging.getLogger(LOGGING_NAME)  # define globally (used in train.py, val.py, detect.py, etc.)
 if WINDOWS:  # emoji-safe logging
-    info_fn, warning_fn = LOGGER.info, LOGGER.warning
-    setattr(LOGGER, info_fn.__name__, lambda x: info_fn(emojis(x)))
-    setattr(LOGGER, warning_fn.__name__, lambda x: warning_fn(emojis(x)))
+    LOGGER.addFilter(EmojiFilter())
 
 
 def yaml_save(file='data.yaml', data=None):
@@ -209,13 +258,14 @@ def yaml_save(file='data.yaml', data=None):
         # Create parent directories if they don't exist
         file.parent.mkdir(parents=True, exist_ok=True)
 
+    # Convert Path objects to strings
+    for k, v in data.items():
+        if isinstance(v, Path):
+            dict[k] = str(v)
+
+    # Dump data to file in YAML format
     with open(file, 'w') as f:
-        # Dump data to file in YAML format, converting Path objects to strings
-        yaml.safe_dump({k: str(v) if isinstance(v, Path) else v
-                        for k, v in data.items()},
-                       f,
-                       sort_keys=False,
-                       allow_unicode=True)
+        yaml.safe_dump(data, f, sort_keys=False, allow_unicode=True)
 
 
 def yaml_load(file='data.yaml', append_filename=False):
@@ -363,12 +413,7 @@ def is_dir_writeable(dir_path: Union[str, Path]) -> bool:
     Returns:
         bool: True if the directory is writeable, False otherwise.
     """
-    try:
-        with tempfile.TemporaryFile(dir=dir_path):
-            pass
-        return True
-    except OSError:
-        return False
+    return os.access(str(dir_path), os.W_OK)
 
 
 def is_pytest_running():
@@ -488,15 +533,16 @@ def get_user_config_dir(sub_dir='Ultralytics'):
 
 
 USER_CONFIG_DIR = Path(os.getenv('YOLO_CONFIG_DIR', get_user_config_dir()))  # Ultralytics settings dir
+SETTINGS_YAML = USER_CONFIG_DIR / 'settings.yaml'
 
 
 def emojis(string=''):
-    # Return platform-dependent emoji-safe version of string
+    """Return platform-dependent emoji-safe version of string."""
     return string.encode().decode('ascii', 'ignore') if WINDOWS else string
 
 
 def colorstr(*input):
-    # Colors a string https://en.wikipedia.org/wiki/ANSI_escape_code, i.e.  colorstr('blue', 'hello world')
+    """Colors a string https://en.wikipedia.org/wiki/ANSI_escape_code, i.e.  colorstr('blue', 'hello world')."""
     *args, string = input if len(input) > 1 else ('blue', 'bold', input[0])  # color arguments, string
     colors = {
         'black': '\033[30m',  # basic colors
@@ -522,23 +568,29 @@ def colorstr(*input):
 
 
 class TryExcept(contextlib.ContextDecorator):
-    # YOLOv8 TryExcept class. Usage: @TryExcept() decorator or 'with TryExcept():' context manager
+    """YOLOv8 TryExcept class. Usage: @TryExcept() decorator or 'with TryExcept():' context manager."""
+
     def __init__(self, msg='', verbose=True):
+        """Initialize TryExcept class with optional message and verbosity settings."""
         self.msg = msg
         self.verbose = verbose
 
     def __enter__(self):
+        """Executes when entering TryExcept context, initializes instance."""
         pass
 
     def __exit__(self, exc_type, value, traceback):
+        """Defines behavior when exiting a 'with' block, prints error message if necessary."""
         if self.verbose and value:
             print(emojis(f"{self.msg}{': ' if self.msg else ''}{value}"))
         return True
 
 
 def threaded(func):
-    # Multi-threads a target function and returns thread. Usage: @threaded decorator
+    """Multi-threads a target function and returns thread. Usage: @threaded decorator."""
+
     def wrapper(*args, **kwargs):
+        """Multi-threads a given function and returns the thread."""
         thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
         thread.start()
         return thread
@@ -548,10 +600,35 @@ def threaded(func):
 
 def set_sentry():
     """
-    Initialize the Sentry SDK for error tracking and reporting if pytest is not currently running.
+    Initialize the Sentry SDK for error tracking and reporting. Enabled when sync=True in settings and
+    disabled when sync=False. Run 'yolo settings' to see and update settings YAML file.
+
+    Conditions required to send errors:
+        - sync=True in YOLO settings
+        - pytest is not running
+        - running in a pip package installation
+        - running in a non-git directory
+        - running with rank -1 or 0
+        - online environment
+        - CLI used to run package (checked with 'yolo' as the name of the main CLI command)
+
+    The function also configures Sentry SDK to ignore KeyboardInterrupt and FileNotFoundError
+    exceptions and to exclude events with 'out of memory' in their exception message.
+
+    Additionally, the function sets custom tags and user information for Sentry events.
     """
 
     def before_send(event, hint):
+        """
+        Modify the event before sending it to Sentry based on specific exception types and messages.
+
+        Args:
+            event (dict): The event dictionary containing information about the error.
+            hint (dict): A dictionary containing additional information about the error.
+
+        Returns:
+            dict: The modified event or None if the event should not be sent to Sentry.
+        """
         if 'exc_info' in hint:
             exc_type, exc_value, tb = hint['exc_info']
             if exc_type in (KeyboardInterrupt, FileNotFoundError) \
@@ -570,26 +647,26 @@ def set_sentry():
             Path(sys.argv[0]).name == 'yolo' and \
             not TESTS_RUNNING and \
             ONLINE and \
-            ((is_pip_package() and not is_git_dir()) or
-             (get_git_origin_url() == 'https://github.com/ultralytics/ultralytics.git' and get_git_branch() == 'main')):
+            is_pip_package() and \
+            not is_git_dir():
 
         import sentry_sdk  # noqa
         sentry_sdk.init(
-            dsn='https://f805855f03bb4363bc1e16cb7d87b654@o4504521589325824.ingest.sentry.io/4504521592406016',
+            dsn='https://5ff1556b71594bfea135ff0203a0d290@o4504521589325824.ingest.sentry.io/4504521592406016',
             debug=False,
             traces_sample_rate=1.0,
             release=__version__,
             environment='production',  # 'dev' or 'production'
             before_send=before_send,
             ignore_errors=[KeyboardInterrupt, FileNotFoundError])
-        sentry_sdk.set_user({'id': SETTINGS['uuid']})
+        sentry_sdk.set_user({'id': SETTINGS['uuid']})  # SHA-256 anonymized UUID hash
 
         # Disable all sentry logging
         for logger in 'sentry_sdk', 'sentry_sdk.errors':
             logging.getLogger(logger).setLevel(logging.CRITICAL)
 
 
-def get_settings(file=USER_CONFIG_DIR / 'settings.yaml', version='0.0.3'):
+def get_settings(file=SETTINGS_YAML, version='0.0.3'):
     """
     Loads a global Ultralytics settings YAML file or creates one with default values if it does not exist.
 
@@ -612,7 +689,7 @@ def get_settings(file=USER_CONFIG_DIR / 'settings.yaml', version='0.0.3'):
         'datasets_dir': str(datasets_root / 'datasets'),  # default datasets directory.
         'weights_dir': str(root / 'weights'),  # default weights directory.
         'runs_dir': str(root / 'runs'),  # default runs directory.
-        'uuid': hashlib.sha256(str(uuid.getnode()).encode()).hexdigest(),  # anonymized uuid hash
+        'uuid': hashlib.sha256(str(uuid.getnode()).encode()).hexdigest(),  # SHA-256 anonymized UUID hash
         'sync': True,  # sync analytics to help with YOLO development
         'api_key': '',  # Ultralytics HUB API key (https://hub.ultralytics.com/)
         'settings_version': version}  # Ultralytics settings version
@@ -638,7 +715,7 @@ def get_settings(file=USER_CONFIG_DIR / 'settings.yaml', version='0.0.3'):
         return settings
 
 
-def set_settings(kwargs, file=USER_CONFIG_DIR / 'settings.yaml'):
+def set_settings(kwargs, file=SETTINGS_YAML):
     """
     Function that runs on a first-time ultralytics package installation to set up global settings and create necessary
     directories.
@@ -648,11 +725,22 @@ def set_settings(kwargs, file=USER_CONFIG_DIR / 'settings.yaml'):
 
 
 def deprecation_warn(arg, new_arg, version=None):
+    """Issue a deprecation warning when a deprecated argument is used, suggesting an updated argument."""
     if not version:
-        version = float(__version__[0:3]) + 0.2  # deprecate after 2nd major release
-    LOGGER.warning(
-        f'WARNING: `{arg}` is deprecated and will be removed in upcoming major release {version}. Use `{new_arg}` instead'
-    )
+        version = float(__version__[:3]) + 0.2  # deprecate after 2nd major release
+    LOGGER.warning(f"WARNING ⚠️ '{arg}' is deprecated and will be removed in 'ultralytics {version}' in the future. "
+                   f"Please use '{new_arg}' instead.")
+
+
+def clean_url(url):
+    """Strip auth from URL, i.e. https://url.com/file.txt?auth -> https://url.com/file.txt."""
+    url = str(Path(url)).replace(':/', '://')  # Pathlib turns :// -> :/
+    return urllib.parse.unquote(url).split('?')[0]  # '%2F' to '/', split https://url.com/file.txt?auth
+
+
+def url2file(url):
+    """Convert URL to filename, i.e. https://url.com/file.txt?auth -> file.txt."""
+    return Path(clean_url(url)).name
 
 
 # Run below code on yolo/utils init ------------------------------------------------------------------------------------
@@ -665,3 +753,26 @@ ENVIRONMENT = 'Colab' if is_colab() else 'Kaggle' if is_kaggle() else 'Jupyter' 
     'Docker' if is_docker() else platform.system()
 TESTS_RUNNING = is_pytest_running() or is_github_actions_ci()
 set_sentry()
+
+# OpenCV Multilanguage-friendly functions ------------------------------------------------------------------------------
+imshow_ = cv2.imshow  # copy to avoid recursion errors
+
+
+def imread(filename, flags=cv2.IMREAD_COLOR):
+    return cv2.imdecode(np.fromfile(filename, np.uint8), flags)
+
+
+def imwrite(filename, img):
+    try:
+        cv2.imencode(Path(filename).suffix, img)[1].tofile(filename)
+        return True
+    except Exception:
+        return False
+
+
+def imshow(path, im):
+    imshow_(path.encode('unicode_escape').decode(), im)
+
+
+if Path(inspect.stack()[0].filename).parent.parent.as_posix() in inspect.stack()[-1].filename:
+    cv2.imread, cv2.imwrite, cv2.imshow = imread, imwrite, imshow  # redefine
