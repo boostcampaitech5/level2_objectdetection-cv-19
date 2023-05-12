@@ -1,7 +1,9 @@
+import os
+
 _base_ = [
     '../_base_/models/retinanet_r50_fpn.py',
-    '../_base_/datasets/coco_detection.py',
-    '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
+    '../_base_/datasets/coco_trash_detection.py',
+    '../_base_/schedules/schedule_1x.py', '../_base_/default_trash_runtime.py'
 ]
 
 # optimizer
@@ -24,7 +26,9 @@ worker = "jisu"
 batch_size = 4
 max_epochs = 50
 
-work_dir = "/opt/ml"
+work_dir = os.path.join("/opt/ml/output/", exp_name)
+os.makedirs(work_dir, exist_ok=True)
+
 train_annotation = "clean_35_train_fold1.json"
 val_annotation = "val_fold1.json"
 
