@@ -11,8 +11,8 @@ log_config = dict(
             by_epoch=True,
             num_eval_images=100,
             # 평가에 사용된 총 이미지 수입니다.값이 0이면 validation_data_path에 있는 모든 이미지가 평가에 사용됩니다.
-            log_checkpoint=True,
-            log_checkpoint_metadata=True,
+            log_checkpoint=False,
+            log_checkpoint_metadata=False,
             # config=vars(args),
             # TODO: wandb logging 할때 config.json에서 name 가져와서 넣어줘야함
             # 여기서 init_kwargs는 wandb.init에 전달된다.
