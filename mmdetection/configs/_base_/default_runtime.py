@@ -1,12 +1,12 @@
 checkpoint_config = dict(interval=1)
 # yapf:disable
 log_config = dict(
-    interval=50,
+    interval=50, # print되는 log의 interval
     hooks=[
         dict(type="TextLoggerHook"),
         dict(
             type="MMDetWandbHook",
-            interval=100,
+            interval=100, # logging되는 interval
             init_kwargs=dict(entity="vip_cv19", project="object_detection", name="test2"),
             by_epoch=True,
             num_eval_images=100,

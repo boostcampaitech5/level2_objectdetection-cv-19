@@ -131,6 +131,8 @@ def main():
         meta=meta,
     )
 
-
+'''
+python tools/train.py configs/custom/base_config.py
+'''
 if __name__ == "__main__":
     main()
