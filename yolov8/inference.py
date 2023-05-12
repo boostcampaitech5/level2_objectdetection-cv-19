@@ -1,4 +1,5 @@
 import argparse
+import os
 import os.path as osp
 
 import pandas as pd
@@ -6,6 +7,7 @@ import torch
 from pycocotools.coco import COCO
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
+
 from ultralytics import YOLO
 
 
@@ -107,7 +109,10 @@ def inference():
     submission = pd.DataFrame()
     submission["PredictionString"] = prediction_strings
     submission["image_id"] = file_names
-    submission.to_csv("./yolo_submission.csv", index=None)
+    
+    path_lst = args.model.split('/')
+    save_path = os.path.join(*path_lst[:2])
+    submission.to_csv(os.path.join(save_path, f"./{path_lst[1]}_submission.csv"), index=None)
     print(submission.head())
 
 

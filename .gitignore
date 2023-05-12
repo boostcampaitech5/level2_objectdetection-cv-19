@@ -135,5 +135,6 @@ dataset_yolo/
 
 #eda
 EDA/
+outputs/
 
 artifacts/
