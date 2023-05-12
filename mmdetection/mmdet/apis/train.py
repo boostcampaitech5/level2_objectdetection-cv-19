@@ -14,7 +14,8 @@ from mmcv.runner import (
     get_dist_info,
 )
 
-from mmdet.core import DistEvalHook, EarlyStoppingHook, EvalHook, build_optimizer
+from mmdet.core import DistEvalHook, EvalHook, build_optimizer
+from mmdet.core.hook import EarlyStoppingHook
 from mmdet.datasets import build_dataloader, build_dataset, replace_ImageToTensor
 from mmdet.utils import build_ddp, build_dp, compat_cfg, find_latest_checkpoint, get_root_logger
 
@@ -191,7 +192,7 @@ def train_detector(model, dataset, cfg, distributed=False, validate=False, times
         if isinstance(runner, EpochBasedRunner):
             runner.register_hook(DistSamplerSeedHook())
 
-    hook = EarlyStoppingHook(monitor="loss", patience=3, by_epoch=True)
+    hook = EarlyStoppingHook(monitor="loss", patience=10, by_epoch=True)
     runner.register_hook(hook)
 
     # register eval hooks
