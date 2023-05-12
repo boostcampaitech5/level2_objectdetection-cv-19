@@ -83,6 +83,7 @@ class EarlyStoppingHook(Hook):
         self.wait_count = 0
         self.stopped_step = 0
         self.should_stop = False
+        self.duplicate = True
         if self.mode not in self.mode_dict:
             raise ValueError(f"`mode` can be {', '.join(self.mode_dict.keys())}, got" f" {self.mode}")
         # if monitor not in runner.log_buffer.output:
@@ -124,9 +125,12 @@ class EarlyStoppingHook(Hook):
         self._run_early_stopping_check(runner, runner.log_buffer.output)
 
     def after_val_epoch(self, runner):
-        print(self.phase)
         if not self.by_epoch or self.phase == "train":
             return
+        if self.duplicate:
+            self.duplicate = False
+            return
+        self.duplicate = True
         runner.log_buffer.average()
         for key, value in runner.log_buffer.output.items():
             print("logs: ",key, value)
