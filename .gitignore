@@ -136,3 +136,4 @@ dataset_yolo/
 #eda
 EDA/
 outputs/
+yolov8/ultralytics/yolo/cfg/*.yaml
