@@ -14,7 +14,8 @@ from mmcv.runner import (
     get_dist_info,
 )
 
-from mmdet.core import DistEvalHook, EarlyStoppingHook, EvalHook, build_optimizer
+from mmdet.core import DistEvalHook, EvalHook, build_optimizer
+from mmdet.core.hook import EarlyStoppingHook
 from mmdet.datasets import build_dataloader, build_dataset, replace_ImageToTensor
 from mmdet.utils import build_ddp, build_dp, compat_cfg, find_latest_checkpoint, get_root_logger
 

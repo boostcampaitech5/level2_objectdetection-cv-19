@@ -127,6 +127,8 @@ class EarlyStoppingHook(Hook):
         if not self.by_epoch or self.phase == "train":
             return
         runner.log_buffer.average()
+        for key, value in runner.log_buffer.output.items():
+            print("logs: ",key, value)
         self._run_early_stopping_check(runner, runner.log_buffer.output)
 
     @property
@@ -159,7 +161,6 @@ class EarlyStoppingHook(Hook):
     def _run_early_stopping_check(self, runner, logs: Dict[str, float]):
         if not self._validate_condition_metric(runner, logs):  # short circuit if metric not present
             return
-
         current = logs[self.monitor].squeeze()
         print("current " + self.monitor + ":" + str(current))
 
