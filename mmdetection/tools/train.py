@@ -24,11 +24,11 @@ from mmdet.utils import (
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a detector")
-    
+
     parser.add_argument("config", help="train config file path")
-    
+
     parser.add_argument("--seed", type=int, default=2023, help="random seed")
-    
+
     parser.add_argument(
         "--deterministic",
         action="store_true",
@@ -44,7 +44,7 @@ def main():
     args = parse_args()
 
     cfg = Config.fromfile(args.config)
-    
+
     # replace the ${key} with the value of cfg.key
     cfg = replace_cfg_vals(cfg)
 
@@ -52,22 +52,22 @@ def main():
     update_data_root(cfg)
     # set multi-process settings
     setup_multi_processes(cfg)
-    
+
     cfg.runner.max_epochs = cfg.max_epochs
     cfg.data.samples_per_gpu = cfg.batch_size
 
     cfg.gpu_ids = [0]
     distributed = False
-    
+
     cfg.data.train.ann_file = cfg.data_root + cfg.train_annotation
     cfg.data.val.ann_file = cfg.data_root + cfg.val_annotation
-    
+
     # create work_dir
     mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
-    
+
     # dump config
     cfg.dump(osp.join(cfg.work_dir, osp.basename(args.config)))
-    
+
     # init the logger before other steps
     timestamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())
     log_file = osp.join(cfg.work_dir, f"{timestamp}.log")
@@ -76,7 +76,7 @@ def main():
     # init the meta dict to record some important information such as
     # environment info and seed, which will be logged
     meta = dict()
-    
+
     # log env info
     env_info_dict = collect_env()
     env_info = "\n".join([(f"{k}: {v}") for k, v in env_info_dict.items()])
@@ -89,7 +89,7 @@ def main():
     logger.info(f"Config:\n{cfg.pretty_text}")
 
     cfg.device = get_device()
-    
+
     # set random seeds
     seed = args.seed
     logger.info(f"Set random seed to {seed}, " f"deterministic: {args.deterministic}")
@@ -99,36 +99,32 @@ def main():
     meta["exp_name"] = osp.basename(args.config)
 
     datasets = [build_dataset(cfg.data.train)]
-    
+
     if len(cfg.workflow) == 2:
         assert "val" in [mode for (mode, _) in cfg.workflow]
         val_dataset = copy.deepcopy(cfg.data.val)
         val_dataset.pipeline = cfg.data.train.pipeline
         datasets.append(build_dataset(val_dataset))
-    
+
     # checkpoint를 얼마나 저장할 것인가
     if cfg.checkpoint_config is not None:
         # save mmdet version, config file content and class names in
         # checkpoints as meta data
-        cfg.checkpoint_config.meta = dict(
-            mmdet_version=__version__ + get_git_hash()[:7], CLASSES=datasets[0].CLASSES
-        )
-    
+        cfg.checkpoint_config.meta = dict(mmdet_version=__version__ + get_git_hash()[:7], CLASSES=datasets[0].CLASSES)
+
     cfg.model.roi_head.bbox_head.num_classes = len(datasets[0].CLASSES)
-    
-    model = build_detector(
-        cfg.model, train_cfg=cfg.get("train_cfg"), test_cfg=cfg.get("test_cfg")
-    )
+
+    model = build_detector(cfg.model, train_cfg=cfg.get("train_cfg"), test_cfg=cfg.get("test_cfg"))
     model.init_weights()
-    
+
     model.CLASSES = datasets[0].CLASSES
-    
+
     train_detector(
         model,
         datasets,
         cfg,
         distributed=distributed,
-        validate=False,
+        validate=True,
         timestamp=timestamp,
         meta=meta,
     )
