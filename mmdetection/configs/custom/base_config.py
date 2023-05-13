@@ -2,10 +2,10 @@ import os
 from mmdet.utils import get_device
 
 _base_ = [
-    "../_base_/models/faster_rcnn_r50_fpn.py",
-    "../_base_/datasets/coco_trash_detection.py",
-    "../_base_/schedules/schedule_1x.py",
-    "../_base_/default_trash_runtime.py",
+    "../../_base_/models/faster_rcnn_r50_fpn.py",
+    "../../_base_/datasets/coco_trash_detection.py",
+    "../../_base_/schedules/schedule_1x.py",
+    "../../_base_/default_trash_runtime.py",
 ]
 # schedule_adamw_cosine
 
@@ -29,9 +29,9 @@ model=dict(
         )
     )
 
-optimizer_config = dict(
-    grad_clip=dict(max_norm=35, norm_type=2)
-    )
+# optimizer_config = dict(
+#     grad_clip=dict(max_norm=35, norm_type=2)
+#     )
 
 log_config = dict(
     interval=50,
