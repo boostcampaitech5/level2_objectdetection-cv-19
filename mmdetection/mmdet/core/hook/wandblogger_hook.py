@@ -227,10 +227,6 @@ class MMDetWandbHook(WandbLoggerHook):
             self._log_ckpt_as_artifact(model_path, aliases, metadata)
 
         runner.meta["eval_results"] = dict(eval_results.items())
-        print(type(dict(eval_results.items())))
-        print("eval_results: ", eval_results)
-        print(len(eval_results))
-        print("eval_results 전송~")
         # Save prediction table
         if self.log_evaluation and self.eval_hook._should_evaluate(runner):
             results = self.eval_hook.latest_results
