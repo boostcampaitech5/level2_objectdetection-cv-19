@@ -1,23 +1,19 @@
-import os
-
 _base_ = [
     "../_base_/models/faster_rcnn_r50_fpn.py",
     "../_base_/datasets/coco_trash_detection.py",
-    "../_base_/schedules/schedule_1x.py",
+    "../_base_/schedules/schedule_adamw_cosine.py",
     "../_base_/default_trash_runtime.py",
 ]
 # schedule_adamw_cosine
 
-exp_name = "MM_base_config"
+exp_name = "MM_baseline_train35_Adam_Cos"
 worker = "jisu"
 
 batch_size = 4
 max_epochs = 50
 
-work_dir = os.path.join("/opt/ml/output/", exp_name)
-os.makedirs(work_dir, exist_ok=True)
-
-train_annotation = "clean_40_train_fold1.json"
+work_dir = "/opt/ml"
+train_annotation = "clean_35_train_fold1.json"
 val_annotation = "val_fold1.json"
 
 log_config = dict(
@@ -36,4 +32,4 @@ log_config = dict(
     ],
 )
 
-evaluation = dict(interval=1, save_best='bbox_mAP', metric='bbox') # bbox_loss, bbox_mAP
+evaluation = dict(interval=1, save_best='bbox_mAP', metric='bbox') # bbox_loss

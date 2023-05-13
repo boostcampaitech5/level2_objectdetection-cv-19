@@ -59,7 +59,7 @@ show_conf: True  # show object confidence scores in plots
 vid_stride: 1  # video frame-rate stride
 line_width:   # line width of the bounding boxes
 visualize: False  # visualize model features
-augment: False  # apply image augmentation to prediction sources
+augment: True  # apply image augmentation to prediction sources
 agnostic_nms: False  # class-agnostic NMS
 classes:  # filter results by class, i.e. class=0, or class=[0,2,3]
 retina_masks: False  # use high-resolution segmentation masks

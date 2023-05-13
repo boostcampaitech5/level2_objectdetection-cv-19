@@ -8,7 +8,7 @@ _base_ = [
 ]
 # schedule_adamw_cosine
 
-exp_name = "MM_base_config"
+exp_name = "MM_baseline_train30"
 worker = "jisu"
 
 batch_size = 4
@@ -17,7 +17,7 @@ max_epochs = 50
 work_dir = os.path.join("/opt/ml/output/", exp_name)
 os.makedirs(work_dir, exist_ok=True)
 
-train_annotation = "clean_40_train_fold1.json"
+train_annotation = "clean_30_train_fold1.json"
 val_annotation = "val_fold1.json"
 
 log_config = dict(
