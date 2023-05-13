@@ -5,7 +5,7 @@ import os.path as osp
 import time
 import sys
 
-sys.path.insert(0, "/opt/ml/level2_objectdetection-cv-19/mmdetection")
+sys.path.insert(0, "/opt/ml/level2_objectdetection-cv-19-develop/mmdetection")
 import mmcv
 from mmcv import Config
 from mmcv.utils import get_git_hash
