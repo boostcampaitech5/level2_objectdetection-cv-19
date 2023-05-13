@@ -139,3 +139,5 @@ outputs/
 
 artifacts/
 tmp_configs/
+mmdetection/configs/custom/queue
+mmdetection/configs/custom/ends
