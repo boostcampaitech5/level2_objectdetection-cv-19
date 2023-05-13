@@ -5,7 +5,7 @@ _base_ = [
     "../_base_/default_trash_runtime.py",
 ]
 
-exp_name = "test"
+exp_name = "MM_base_config"
 worker = "jisu"
 
 batch_size = 4

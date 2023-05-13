@@ -192,7 +192,22 @@ def train_detector(model, dataset, cfg, distributed=False, validate=False, times
         if isinstance(runner, EpochBasedRunner):
             runner.register_hook(DistSamplerSeedHook())
 
-    hook = EarlyStoppingHook(monitor="loss", patience=10, by_epoch=True)
+    # register EarlyStoppingHook
+    # monitor = {
+    #   "bbox_mAP",
+    #   "bbox_mAP_50",
+    #   "bbox_mAP_75",
+    #   "bbox_mAP_s",
+    #   "bbox_mAP_m",
+    #   "bbox_mAP_l",
+    #   "loss_rpn_cls",
+    #   "loss_rpn_bbox",
+    #   "loss_cls",
+    #   "acc",
+    #   "loss_bbox,
+    #   "loss"
+    # }
+    hook = EarlyStoppingHook(monitor="bbox_mAP", patience=10, mode = "max", by_epoch=True)
     runner.register_hook(hook)
 
     # register eval hooks

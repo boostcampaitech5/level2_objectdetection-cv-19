@@ -211,7 +211,7 @@ class MMDetWandbHook(WandbLoggerHook):
 
         if not self.by_epoch:
             return
-
+        eval_results = self._get_eval_results()
         # Log checkpoint and metadata.
         if (
             self.log_checkpoint
@@ -219,16 +219,23 @@ class MMDetWandbHook(WandbLoggerHook):
             or (self.ckpt_hook.save_last and self.is_last_epoch(runner))
         ):
             if self.log_checkpoint_metadata and self.eval_hook:
-                metadata = {"epoch": runner.epoch + 1, **self._get_eval_results()}
+                metadata = {"epoch": runner.epoch + 1, **eval_results}               
             else:
                 metadata = None
             aliases = [f"epoch_{runner.epoch + 1}", "latest"]
             model_path = osp.join(self.ckpt_hook.out_dir, f"epoch_{runner.epoch + 1}.pth")
             self._log_ckpt_as_artifact(model_path, aliases, metadata)
 
+        runner.meta["eval_results"] = dict(eval_results.items())
+        print(type(dict(eval_results.items())))
+        print("eval_results: ", eval_results)
+        print(len(eval_results))
+        print("eval_results 전송~")
         # Save prediction table
         if self.log_evaluation and self.eval_hook._should_evaluate(runner):
             results = self.eval_hook.latest_results
+            #metric_items = ['mAP', 'mAP_50', 'mAP_75', 'mAP_s', 'mAP_m', 'mAP_l']
+
             # Initialize evaluation table
             self._init_pred_table()
             # Log predictions
