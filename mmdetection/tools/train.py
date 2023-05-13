@@ -5,7 +5,7 @@ import os.path as osp
 import time
 import sys
 
-sys.path.insert(0, "/opt/ml/level2_objectdetection-cv-19-develop/mmdetection")
+sys.path.insert(0, "/opt/ml/level2_objectdetection-cv-19/mmdetection")
 import mmcv
 from mmcv import Config
 from mmcv.utils import get_git_hash
@@ -114,8 +114,6 @@ def main():
         # checkpoints as meta data
         cfg.checkpoint_config.meta = dict(mmdet_version=__version__ + get_git_hash()[:7], CLASSES=datasets[0].CLASSES)
 
-    cfg.model.roi_head.bbox_head.num_classes = len(datasets[0].CLASSES)
-
     model = build_detector(cfg.model, train_cfg=cfg.get("train_cfg"), test_cfg=cfg.get("test_cfg"))
     model.init_weights()
 
@@ -132,7 +130,7 @@ def main():
     )
 
 '''
-python tools/train.py configs/custom/base_config.py
+python tools/train.py configs/custom/MM_baseline_cascade_train35.py
 '''
 if __name__ == "__main__":
     main()
