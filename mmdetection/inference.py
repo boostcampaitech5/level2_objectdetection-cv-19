@@ -1,12 +1,12 @@
 # 모듈 import
 import os
+import argparse
+
 import mmcv
 import numpy as np
-
-
 import pandas as pd
 
-# from mmcv import Config
+from mmcv import Config
 from mmdet.datasets import build_dataloader, build_dataset, replace_ImageToTensor
 from mmdet.models import build_detector
 from mmdet.apis import single_gpu_test
@@ -14,12 +14,45 @@ from mmcv.runner import load_checkpoint
 from mmcv.parallel import MMDataParallel
 from pandas import DataFrame
 from pycocotools.coco import COCO
-from custom.custom_config import TestCustomConfig
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Train a detector")
+    
+    #MM_baseline_train30
+    parser.add_argument("--cfg_folder", type=str, default="exp_name", help="cfg folder")
+    parser.add_argument("--seed", type=int, default=2023, help="random seed")
+
+    args = parser.parse_args()
+
+    return args
 
 
 def inference():
+    args = parse_args()
+    
     # Custom config 로드
-    cfg = TestCustomConfig()
+    base_path = '/opt/ml/output'
+    exp_path = os.path.join(base_path, args.cfg_folder)
+    dir_lst = os.listdir(exp_path)
+    
+    cfg_file, weight_file = None, None
+    for i in dir_lst:
+        if i.endswith('.py'):
+            cfg_file = i
+        if i.startswith('best'):
+            weight_file = i
+            
+    if cfg_file==None:
+        print('There is no cfg file!')
+        print(f'your path: {exp_path}\nfile list: {dir_lst}')
+        return
+    if weight_file==None:
+        weight_file = 'latest.pth'
+
+    print(cfg_file, weight_file)
+    cfg_path = os.path.join(exp_path, cfg_file)
+    cfg = Config.fromfile(cfg_path)
 
     # dataset & dataloader 로드
     dataset = build_dataset(cfg.data.test)
@@ -28,8 +61,7 @@ def inference():
     )
 
     # model 로드, checkpoint 로드
-    epoch = "latest"  # 가져오고 싶은 가중치 checkpoint 지정
-    checkpoint_path = os.path.join(cfg.work_dir, f"{epoch}.pth")
+    checkpoint_path = os.path.join(cfg.work_dir, weight_file)
 
     model = build_detector(cfg.model, test_cfg=cfg.get("test_cfg"))  # build detector
     checkpoint = load_checkpoint(model, checkpoint_path, map_location="cpu")  # ckpt load
@@ -74,8 +106,11 @@ def inference():
     submission = pd.DataFrame()
     submission["PredictionString"] = prediction_strings
     submission["image_id"] = file_names
-    submission.to_csv(os.path.join(cfg.work_dir, f"submission_{epoch}.csv"), index=None)
+    submission.to_csv(os.path.join(cfg.work_dir, f"submission_{cfg.exp_name}.csv"), index=None)
 
 
+'''
+python inference.py --cfg_folder MM_baseline_train35_save_by_mAP50
+'''
 if __name__ == "__main__":
     inference()
