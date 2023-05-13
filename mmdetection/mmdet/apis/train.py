@@ -207,7 +207,7 @@ def train_detector(model, dataset, cfg, distributed=False, validate=False, times
     #   "loss_bbox,
     #   "loss"
     # }
-    hook = EarlyStoppingHook(monitor="bbox_mAP", patience=10, mode = "max", by_epoch=True)
+    hook = EarlyStoppingHook(monitor="bbox_mAP_50", patience=10, mode = "max", by_epoch=True)
     runner.register_hook(hook)
 
     # register eval hooks
