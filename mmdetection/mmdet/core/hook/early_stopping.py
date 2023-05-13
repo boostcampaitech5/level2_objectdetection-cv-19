@@ -116,7 +116,7 @@ class EarlyStoppingHook(Hook):
         if not self.by_epoch or self.phase == "val":
             return
         runner.log_buffer.average()
-        #self._run_early_stopping_check(runner, runner.log_buffer.output)
+        self._run_early_stopping_check(runner, runner.log_buffer.output)
 
     def after_val_iter(self, runner):
         if self.by_epoch or self.phase == "train":
@@ -125,16 +125,19 @@ class EarlyStoppingHook(Hook):
         self._run_early_stopping_check(runner, runner.log_buffer.output)
 
     def after_val_epoch(self, runner):
+        eval_results = runner.meta.get("eval_results")
         if not self.by_epoch or self.phase == "train":
             return
         if self.duplicate:
             self.duplicate = False
             return
+
         self.duplicate = True
         runner.log_buffer.average()
-        for key, value in runner.log_buffer.output.items():
-            print("logs: ",key, value)
-        self._run_early_stopping_check(runner, runner.log_buffer.output)
+        if self.monitor in eval_results:
+            self._run_early_stopping_check(runner, eval_results)
+        else:
+            self._run_early_stopping_check(runner, runner.log_buffer.output)
 
     @property
     def monitor_op(self) -> Callable:
@@ -166,7 +169,10 @@ class EarlyStoppingHook(Hook):
     def _run_early_stopping_check(self, runner, logs: Dict[str, float]):
         if not self._validate_condition_metric(runner, logs):  # short circuit if metric not present
             return
-        current = logs[self.monitor].squeeze()
+        if type(logs[self.monitor]) == float:
+            current = logs[self.monitor]
+        else:
+            current = logs[self.monitor].squeeze()
         print("current " + self.monitor + ":" + str(current))
 
         should_stop, reason = self._evaluate_stopping_criteria(current)
