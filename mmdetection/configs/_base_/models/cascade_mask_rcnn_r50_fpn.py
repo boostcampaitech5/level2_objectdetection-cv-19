@@ -92,7 +92,7 @@ model = dict(
                     use_sigmoid=False,
                     loss_weight=1.0),
                 loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0))
-        ],
+        ]),
         # mask_roi_extractor=dict(
         #     type='SingleRoIExtractor',
         #     roi_layer=dict(type='RoIAlign', output_size=14, sampling_ratio=0),
