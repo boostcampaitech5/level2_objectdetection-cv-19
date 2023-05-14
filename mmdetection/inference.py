@@ -50,9 +50,17 @@ def inference():
     if weight_file==None:
         weight_file = 'latest.pth'
 
-    print(cfg_file, weight_file)
+    #print(cfg_file, weight_file)
     cfg_path = os.path.join(exp_path, cfg_file)
     cfg = Config.fromfile(cfg_path)
+
+    # dataset config 수정
+    cfg.data.test.test_mode = True
+
+    cfg.seed=2021
+    cfg.gpu_ids = [1]
+
+    cfg.model.train_cfg = None
 
     # dataset & dataloader 로드
     dataset = build_dataset(cfg.data.test)
@@ -110,7 +118,7 @@ def inference():
 
 
 '''
-python inference.py --cfg_folder MM_baseline_train35_save_by_mAP50
+python inference.py --cfg_folder MM_baseline_train30
 '''
 if __name__ == "__main__":
     inference()
