@@ -18,4 +18,4 @@ if configs:
     os.system(f"mv {os.path.join(CONFIG_QUEUE_PATH, configs[0])} {os.path.join(CONFIG_ENDS_PATH, configs[0])}")
 
     EXP_PATH = os.path.join(EXP_BASE_PATH, configs[0][:-3]) # opt/ml/output/base_config
-    os.system(f"python inference.py --cfg_folder {os.path.join(EXP_PATH, configs[0])}")
+    os.system(f"python inference.py --cfg_folder {os.path.join(EXP_PATH, configs[0][:-3])}")
