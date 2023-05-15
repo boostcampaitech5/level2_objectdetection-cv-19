@@ -1,6 +1,6 @@
 import os
 
-BASE_PATH = "/opt/ml/level2_objectdetection-cv-19/mmdetection"
+BASE_PATH = "/opt/ml/level2_objectdetection-cv-19-develop/mmdetection"
 EXP_BASE_PATH = 'opt/ml/output'
 CONFIG_PATH = "configs/custom"
 
