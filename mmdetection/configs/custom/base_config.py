@@ -11,6 +11,7 @@ _base_ = [
 # schedule_adamw_cosine
 
 exp_name = "MM_baseline_train30"
+weight_dir = None
 worker = "seoin"
 
 batch_size = 4
