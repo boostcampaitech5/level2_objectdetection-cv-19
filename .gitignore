@@ -118,7 +118,7 @@ output/
 work_dirs/
 #mmdetection/
 mmdetection/*.ipynb
-
+augmentation_ex/
 log*.txt
 
 #mmdetection/

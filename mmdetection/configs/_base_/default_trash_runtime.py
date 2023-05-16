@@ -15,7 +15,7 @@ log_config = dict(
             log_checkpoint_metadata=False,
         )
     ],
-)
+) 
 # yapf:enable
 custom_hooks = [dict(type="NumClassCheckHook")]
 

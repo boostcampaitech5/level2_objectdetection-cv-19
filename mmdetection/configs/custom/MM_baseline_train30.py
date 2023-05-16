@@ -11,11 +11,10 @@ _base_ = [
 # schedule_adamw_cosine
 
 exp_name = "MM_baseline_train30"
-weight_dir = None
-worker = "seoin"
+worker = "jisu"
 
 batch_size = 4
-max_epochs = 2
+max_epochs = 50
 device = get_device()
 
 work_dir = os.path.join("/opt/ml/output/", exp_name)
@@ -42,7 +41,7 @@ log_config = dict(
         dict(
             type="MMDetWandbHook",
             interval=100,
-            init_kwargs=dict(entity="cv-19", project="mmdetection", name=exp_name),
+            init_kwargs=dict(entity="vip_cv19", project="mmdetection", name=exp_name),
             by_epoch=True,
             num_eval_images=100,
             log_checkpoint=False,
