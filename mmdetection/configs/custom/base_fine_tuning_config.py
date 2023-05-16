@@ -9,7 +9,7 @@ _base_ = [
 ]
 # schedule_adamw_cosine
 
-exp_name = "MM_baseline_train35"
+exp_name = "MM_baseline_fine_tuning"
 worker = "jisu"
 
 batch_size = 4
@@ -19,7 +19,11 @@ device = get_device()
 work_dir = os.path.join("/opt/ml/output/", exp_name)
 os.makedirs(work_dir, exist_ok=True)
 
-train_annotation = "clean_35_train_fold1.json"
+# Set folder path if resume with custom pre-trained weights
+weight_dir = os.path.join("/opt/ml/output/", 'MM_baseline_train40_res1024')
+
+
+train_annotation = "clean_40_train_fold1.json"
 val_annotation = "val_fold1.json"
 
 model=dict(
@@ -29,10 +33,6 @@ model=dict(
         )
     )
 
-# optimizer_config = dict(
-#     grad_clip=dict(max_norm=35, norm_type=2)
-#     )
-
 log_config = dict(
     interval=50,
     hooks=[
@@ -40,7 +40,7 @@ log_config = dict(
         dict(
             type="MMDetWandbHook",
             interval=100,
-            init_kwargs=dict(entity="vip_cv19", project="mmdetection", name=exp_name),
+            init_kwargs=dict(entity="cv-19", project="mmdetection", name=exp_name),
             by_epoch=True,
             num_eval_images=100,
             log_checkpoint=False,
@@ -49,4 +49,4 @@ log_config = dict(
     ],
 )
 
-evaluation = dict(interval=1, save_best='bbox_mAP_50', metric='bbox') # bbox_mAP_50 기준 save
+evaluation = dict(interval=1, save_best='bbox_mAP_50')
