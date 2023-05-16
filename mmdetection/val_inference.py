@@ -61,9 +61,9 @@ def inference():
     cfg.gpu_ids = [1]
 
     cfg.model.train_cfg = None
-
+    
     # dataset & dataloader 로드
-    dataset = build_dataset(cfg.data.test)
+    dataset = build_dataset(cfg.data.val)
     data_loader = build_dataloader(
         dataset, samples_per_gpu=1, workers_per_gpu=cfg.data.workers_per_gpu, dist=False, shuffle=False
     )
@@ -71,7 +71,7 @@ def inference():
     # model 로드, checkpoint 로드
     checkpoint_path = os.path.join(cfg.work_dir, weight_file)
 
-    model = build_detector(cfg.model, test_cfg=cfg.get("test_cfg"))  # build detector
+    model = build_detector(cfg.model, test_cfg=cfg.get("val_cfg"))  # build detector
     checkpoint = load_checkpoint(model, checkpoint_path, map_location="cpu")  # ckpt load
 
     model.CLASSES = dataset.CLASSES
@@ -83,7 +83,7 @@ def inference():
     # submission 양식에 맞게 output 후처리
     prediction_strings = []
     file_names = []
-    coco = COCO(cfg.data.test.ann_file)
+    coco = COCO(cfg.data.val.ann_file)
     img_ids = coco.getImgIds()
 
     class_num = 10
@@ -114,11 +114,11 @@ def inference():
     submission = pd.DataFrame()
     submission["PredictionString"] = prediction_strings
     submission["image_id"] = file_names
-    submission.to_csv(os.path.join(cfg.work_dir, f"submission_{cfg.exp_name}.csv"), index=None)
+    submission.to_csv(os.path.join(cfg.work_dir, f"validation_{cfg.exp_name}.csv"), index=None)
 
 
 '''
-python inference.py --cfg_folder MM_baseline_train30
+python val_inference.py --cfg_folder MM_baseline_train30
 '''
 if __name__ == "__main__":
     inference()
