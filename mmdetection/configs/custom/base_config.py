@@ -1,5 +1,7 @@
 import os
 
+from mmdet.utils import get_device
+
 _base_ = [
     "../_base_/models/faster_rcnn_r50_fpn.py",
     "../_base_/datasets/coco_trash_detection.py",
@@ -8,17 +10,29 @@ _base_ = [
 ]
 # schedule_adamw_cosine
 
-exp_name = "MM_base_config"
-worker = "jisu"
+exp_name = "MM_baseline_train30"
+worker = "seoin"
 
 batch_size = 4
-max_epochs = 50
+max_epochs = 2
+device = get_device()
 
 work_dir = os.path.join("/opt/ml/output/", exp_name)
 os.makedirs(work_dir, exist_ok=True)
 
-train_annotation = "clean_40_train_fold1.json"
+train_annotation = "clean_30_train_fold1.json"
 val_annotation = "val_fold1.json"
+
+model=dict(
+    roi_head=dict(
+        bbox_head=dict(
+            num_classes=10)
+        )
+    )
+
+# optimizer_config = dict(
+#     grad_clip=dict(max_norm=35, norm_type=2)
+#     )
 
 log_config = dict(
     interval=50,
@@ -27,7 +41,7 @@ log_config = dict(
         dict(
             type="MMDetWandbHook",
             interval=100,
-            init_kwargs=dict(entity="vip_cv19", project="object_detection", name=exp_name),
+            init_kwargs=dict(entity="cv-19", project="mmdetection", name=exp_name),
             by_epoch=True,
             num_eval_images=100,
             log_checkpoint=False,
@@ -36,4 +50,4 @@ log_config = dict(
     ],
 )
 
-evaluation = dict(interval=1, save_best='bbox_mAP', metric='bbox') # bbox_loss, bbox_mAP
+evaluation = dict(interval=1, save_best='bbox_mAP_50', metric='bbox') # bbox_mAP_50 기준 save
