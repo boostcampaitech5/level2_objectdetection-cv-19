@@ -13,9 +13,9 @@ log_config = dict(
             # 평가에 사용된 총 이미지 수. 값이 0이면 validation_data_path에 있는 모든 이미지가 평가에 사용.
             log_checkpoint=False,
             log_checkpoint_metadata=False,
-        )
+        ),
     ],
-) 
+)
 # yapf:enable
 custom_hooks = [dict(type="NumClassCheckHook")]
 
