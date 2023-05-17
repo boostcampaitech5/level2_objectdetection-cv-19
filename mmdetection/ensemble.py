@@ -44,6 +44,9 @@ def ensemble():
     file_names = []
     # ensemble 시 설정할 iou threshold 이 부분을 바꿔가며 대회 metric에 알맞게 적용해봐요!
     iou_thr = 0.7
+    weights = None
+    skip_box_thr = 0
+    sigma = 0.1
 
     # 각 image id 별로 submission file에서 box좌표 추출
     for i, image_id in enumerate(image_ids):
@@ -76,9 +79,12 @@ def ensemble():
         
     #     예측 box가 있다면 이를 ensemble 수행
         if len(boxes_list):
-            boxes, scores, labels = nms(boxes_list, scores_list, labels_list, iou_thr=iou_thr)
+            # boxes, scores, labels = nms(boxes_list, scores_list, labels_list, weights=weights, iou_thr=iou_thr)
+            # boxes, scores, labels = soft_nms(boxes_list, scores_list, labels_list, weights=weights, iou_thr=iou_thr, sigma=sigma, thresh=skip_box_thr)
+            # boxes, scores, labels = non_maximum_weighted(boxes_list, scores_list, labels_list, weights=weights, iou_thr=iou_thr, skip_box_thr=skip_box_thr)
+            boxes, scores, labels = weighted_boxes_fusion(boxes_list, scores_list, labels_list, weights=weights, iou_thr=iou_thr, skip_box_thr=skip_box_thr)
             for box, score, label in zip(boxes, scores, labels):
-                prediction_string += str(label) + ' ' + str(score) + ' ' + str(box[0] * image_info['width']) + ' ' + str(box[1] * image_info['height']) + ' ' + str(box[2] * image_info['width']) + ' ' + str(box[3] * image_info['height']) + ' '
+                prediction_string += str(int(label)) + ' ' + str(score) + ' ' + str(box[0] * image_info['width']) + ' ' + str(box[1] * image_info['height']) + ' ' + str(box[2] * image_info['width']) + ' ' + str(box[3] * image_info['height']) + ' '
         
         prediction_strings.append(prediction_string)
         file_names.append(image_id)
@@ -87,7 +93,7 @@ def ensemble():
     submission = pd.DataFrame()
     submission['PredictionString'] = prediction_strings
     submission['image_id'] = file_names
-    submission.to_csv(os.path.join(SAVE_PATH, save_name))
+    submission.to_csv(os.path.join(SAVE_PATH, save_name), index=False)
 
     submission.head()
 
