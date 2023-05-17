@@ -118,7 +118,7 @@ output/
 work_dirs/
 #mmdetection/
 mmdetection/*.ipynb
-
+augmentation_ex/
 log*.txt
 
 #mmdetection/
@@ -138,3 +138,6 @@ EDA/
 outputs/
 
 artifacts/
+tmp_configs/
+mmdetection/configs/custom/queue
+mmdetection/configs/custom/ends

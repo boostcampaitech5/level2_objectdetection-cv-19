@@ -1,15 +1,16 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import copy
+import os
 import os.path as osp
-import time
 import sys
+import time
 
-sys.path.insert(0, "/opt/ml/level2_objectdetection-cv-19/mmdetection")
+sys.path.insert(0, "/opt/ml/level2_objectdetection-cv-19-develop/mmdetection")
 import mmcv
+from mmcv.runner import load_checkpoint
 from mmcv import Config
 from mmcv.utils import get_git_hash
-
 from mmdet import __version__
 from mmdet.apis import set_random_seed, train_detector
 from mmdet.datasets import build_dataset
@@ -61,9 +62,13 @@ def main():
     cfg.gpu_ids = [0]
     distributed = False
 
-    cfg.data.train.ann_file = cfg.data_root + cfg.train_annotation
-    cfg.data.val.ann_file = cfg.data_root + cfg.val_annotation
+    if cfg.data.train.type =='MultiImageMixDataset':
+        cfg.data.train.dataset.ann_file = cfg.data_root + cfg.train_annotation
+        cfg.workflow[0] = ("train", cfg.max_epochs)
+    else:
+        cfg.data.train.ann_file = cfg.data_root + cfg.train_annotation
 
+    cfg.data.val.ann_file = cfg.data_root + cfg.val_annotation
     # create work_dir
     mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
 
@@ -101,7 +106,8 @@ def main():
     meta["exp_name"] = osp.basename(args.config)
 
     datasets = [build_dataset(cfg.data.train)]
-
+    
+    
     if len(cfg.workflow) == 2:
         assert "val" in [mode for (mode, _) in cfg.workflow]
         val_dataset = copy.deepcopy(cfg.data.val)
@@ -114,10 +120,20 @@ def main():
         # checkpoints as meta data
         cfg.checkpoint_config.meta = dict(mmdet_version=__version__ + get_git_hash()[:7], CLASSES=datasets[0].CLASSES)
 
-    cfg.model.roi_head.bbox_head.num_classes = len(datasets[0].CLASSES)
-
     model = build_detector(cfg.model, train_cfg=cfg.get("train_cfg"), test_cfg=cfg.get("test_cfg"))
-    model.init_weights()
+    if cfg.weight_dir:
+        dir_lst = os.listdir(cfg.weight_dir)
+        weight_file = None
+        for i in dir_lst:
+            if i.startswith('best'):
+                weight_file = i
+
+        if weight_file==None:
+            weight_file = 'latest.pth'
+        weight_path = os.path.join(cfg.weight_dir, weight_file)
+        checkpoint = load_checkpoint(model, weight_path, map_location="cpu")  # ckpt load
+    else:
+        model.init_weights()
 
     model.CLASSES = datasets[0].CLASSES
 
@@ -132,7 +148,7 @@ def main():
     )
 
 '''
-python tools/train.py configs/custom/base_config.py
+python tools/train.py configs/custom/MM_baseline_cascade_train35.py
 '''
 if __name__ == "__main__":
     main()

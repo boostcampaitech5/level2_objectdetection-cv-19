@@ -2,22 +2,36 @@ import os
 from mmdet.utils import get_device
 
 _base_ = [
-    "../_base_/models/faster_rcnn_r50_fpn.py",
-    "../_base_/datasets/coco_trash_detection.py",
-    "../_base_/schedules/schedule_1x.py",
-    "../_base_/default_trash_runtime.py",
+    "../../_base_/models/faster_rcnn_r50_fpn.py",
+    "../../_base_/datasets/coco_trash_detection.py",
+    "../../_base_/schedules/schedule_1x.py",
+    "../../_base_/default_trash_runtime.py",
 ]
 # schedule_adamw_cosine
-exp_name = "MM_baseline_train40_pseudo_update_image"
+
+exp_name = "MM_baseline_fine_tuning"
 worker = "jisu"
+
 batch_size = 4
 max_epochs = 50
 device = get_device()
+
 work_dir = os.path.join("/opt/ml/output/", exp_name)
 os.makedirs(work_dir, exist_ok=True)
-train_annotation = "complete2.json"
+
+# Set folder path if resume with custom pre-trained weights
+weight_dir = os.path.join("/opt/ml/output/", 'MM_baseline_train40_res1024')
+
+
+train_annotation = "clean_40_train_fold1.json"
 val_annotation = "val_fold1.json"
-model = dict(roi_head=dict(bbox_head=dict(num_classes=10)))
+
+model=dict(
+    roi_head=dict(
+        bbox_head=dict(
+            num_classes=10)
+        )
+    )
 
 log_config = dict(
     interval=50,
@@ -31,8 +45,8 @@ log_config = dict(
             num_eval_images=100,
             log_checkpoint=False,
             log_checkpoint_metadata=False,
-        ),
+        )
     ],
 )
 
-evaluation = dict(interval=1, save_best="bbox_mAP_50")
+evaluation = dict(interval=1, save_best='bbox_mAP_50')

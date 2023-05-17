@@ -1,4 +1,4 @@
-checkpoint_config = dict(max_keep_ckpts=3, interval=1)
+checkpoint_config = dict(max_keep_ckpts=1, interval=1)
 # yapf:disable
 log_config = dict(
     interval=50,
@@ -7,17 +7,13 @@ log_config = dict(
         dict(
             type="MMDetWandbHook",
             interval=100,
-            init_kwargs=dict(entity="cv-19", project="mmdetection", name="inferdataset"),
+            init_kwargs=dict(entity="cv-19", project="mmdetection", name="exp"),
             by_epoch=True,
             num_eval_images=100,
-            # 평가에 사용된 총 이미지 수입니다.값이 0이면 validation_data_path에 있는 모든 이미지가 평가에 사용됩니다.
+            # 평가에 사용된 총 이미지 수. 값이 0이면 validation_data_path에 있는 모든 이미지가 평가에 사용.
             log_checkpoint=False,
             log_checkpoint_metadata=False,
-            # config=vars(args),
-            # TODO: wandb logging 할때 config.json에서 name 가져와서 넣어줘야함
-            # 여기서 init_kwargs는 wandb.init에 전달된다.
-        )
-        # dict(type='TensorboardLoggerHook')
+        ),
     ],
 )
 # yapf:enable
