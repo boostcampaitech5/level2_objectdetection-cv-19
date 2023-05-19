@@ -13,7 +13,7 @@ except (ImportError, AssertionError):
 def on_pretrain_routine_start(trainer):
     """Initiate and start project if module is present."""
     wb.init(
-        entity="vip_cv19", project="object_detection", name=trainer.args.name, config=vars(trainer.args)
+        entity="cv-19", project="yolo", name=trainer.args.name, config=vars(trainer.args)
     ) if not wb.run else wb.run
 
 

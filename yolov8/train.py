@@ -12,6 +12,7 @@ def parse_args():
     # parser.add_argument("--dataset_cfg", type=str, default="recycle.yaml", help="dataset config file path")
     parser.add_argument("--train_cfg", type=str, default="default.yaml", help="train config file path")
     parser.add_argument("--seed", type=int, default=2023, help="random seed")
+    parser.add_argument("--weight", type=str, default="yolov8n.pt", help="yolov8 model weight(.pt) or path(outputs/~/best.pt)")
 
     args = parser.parse_args()
 
@@ -31,7 +32,7 @@ def main():
 
     # Define model
     # init에서 주어진 string 가지고 _load 수행, model
-    model = YOLO()
+    model = YOLO(args.weight)
 
     # Set the logger for the model
     model.logger = wandb
@@ -46,7 +47,8 @@ def main():
 
 
 """
-python train.py --train_cfg custom.yaml
+pretrained model load: python train.py --weight yolov8l.pt --train_cfg V1_yolov8l_pt_img1024.yaml
+best.pt부터 이어서 load: python train.py --weight outputs/V1_yolov8l_pt_img1024/weights/best.pt --train_cfg V1_yolov8l_pt_img1024.yaml
 """
 if __name__ == "__main__":
     main()
