@@ -48,18 +48,18 @@
 ---
 
 ## Repository 구조
-- Repository 는 다음과 같은 구조로 구성되어있습니다. 
+- Repository 는 다음과 같은 구조로 구성되어 있습니다. 
 
 ```
-├── images
+├── .github
+├── EDA
 ├── codebook
-├── detectron2
+├── images
+├── mmdetection
+├── rabbitmq
+├── yolov8
 ├── .gitignore
-├── .gitmessage.txt
-├── ISSUE_TEMPLATE.md
-├── README.md
-├── pull_request_template.md
-└── requirements.txt
+└── README.md
 ```
 ----
 ## requirements
