@@ -6,7 +6,7 @@
 - [부스트캠프 AI Tech](https://boostcamp.connect.or.kr/program_ai.html) - Level2. Object Detection Competition  
 
 # Introduction
-<img src="/Users/jisu/Desktop/study/naver_AI_TECH/level2/level2_objectdetection-cv-19/images/introduction.png"/>
+<img src="./images/introduction.png"/>
 
 목표 : 주어진 사진에서 10종류의 재활용 쓰레기를 분류하여 탐지하는 모델 제작
 
