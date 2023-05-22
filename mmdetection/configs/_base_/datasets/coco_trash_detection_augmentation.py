@@ -10,19 +10,11 @@ img_norm_cfg = dict(
 _classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
            "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 
-# RandomSizedBBoxSafeCrop 다시 추가
-# RandomBrightnessContrast, HueSaturationValue 인자 수정
-# Mosaic 추가, prob는 0.3, padding 넣어줌
-# mixup 제거, padding 넣어줌
-# ToGray와 GaussNoise 인자 수정
-# GaussianBlur 추가
-# MedianBlur limit 수정
-
 albu_train_transforms = [
     dict(
         type='RandomSizedBBoxSafeCrop',
-        height=512,
-        width=512,
+        height=1024,
+        width=1024,
         erosion_rate=0.3,
         interpolation=1,
         p=0.3
@@ -95,10 +87,8 @@ albu_train_transforms = [
 
 
 train_pipeline = [
-    #dict(type='Resize', img_scale=(512, 512), keep_ratio=True),
     dict(type='Mosaic', img_scale=(1024,1024), pad_val=50.0, prob=0.3),
-    #dict(type='MixUp', img_scale=(512,512), pad_val=50.0 ),
-    dict(type='RandomFlip', flip_ratio=0.0), # 이거 지우면 오류 뜸
+    dict(type='RandomFlip', flip_ratio=0.0),
     dict(
         type='Albu',
         transforms=albu_train_transforms,
