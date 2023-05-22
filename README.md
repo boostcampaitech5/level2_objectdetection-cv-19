@@ -1,6 +1,6 @@
 # level2_objectdetection-cv-19
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 - [부스트캠프 AI Tech](https://boostcamp.connect.or.kr/program_ai.html) - Level2. Object Detection Competition  
