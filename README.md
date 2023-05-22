@@ -112,4 +112,4 @@
   |Focal Loss| - Focal Loss와 Cross Entropy Loss와의 비교|
   |YOLOv8| - Input image size 업스케일링<br>- Localization loss function 변경<br>- Data augmentation 변경<br>- Model size 교체<br>- 추가 학습 진행<br>|
   |Ensemble|- TTA (Test Time Augmentation)<br>- NMS (Non-Maximum Suppression)<br>- WBF (Weighted Box Fusion) |
-  |Pseudo-labeling|- 리더보드 기준 가장 좋았던 성능의 inference 결과에 포함되어 있는 bbox의 annotation 정보를 다시 train dataset으로 가져와서 학습시켰다. |
+  |Pseudo-labeling|- 리더보드 기준 가장 좋았던 성능의 inference 결과에 포함되어 있는 bbox의 annotation 정보를 다시 train dataset으로 가져와서 학습 |
