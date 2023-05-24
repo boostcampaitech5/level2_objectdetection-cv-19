@@ -69,38 +69,28 @@
 ----
 # **실행 방법**
 ### 1) mmdetection 
-#### **`install requirements`**
+#### **install requirements**
 
-```bash
-pip install -r mmdetection/requirements.txt
-```
-#### **`train`**
+`pip install -r mmdetection/requirements.txt`
+#### **train**
 
-```bash
-python mmdetection/tools/train.py mmdetection/configs/custom/base_config.py
-```
-#### **`inference(TODO: folder 구조에 따라 config folder 수정)`**
+`python mmdetection/tools/train.py mmdetection/configs/custom/base_config.py`
+#### **inference(TODO: folder 구조에 따라 config folder 수정)**
 
-```bash
-python mmdetection/inference.py -cfg_folder {base_config folder path}
-```
+`python mmdetection/inference.py -cfg_folder {base_config folder path}`
 
 ### 2) YOLOv8
-#### **`install requirements`**
+#### **install requirements**
 
-```bash
-pip install -r yolov8/requirements.txt
-```
-#### **`train`**
+`bash
+pip install -r yolov8/requirements.txt`
+#### **train**
 
-```bash
-python yolov8/train.py --train_cfg yolov8/V1_yolov8l_pt_img1024.yaml --weight yolov8/yolov8l.pt
-```
-#### **`inference(TODO: best.pt 위치에 따라 path 수정)`**
+`bash
+python yolov8/train.py --train_cfg yolov8/V1_yolov8l_pt_img1024.yaml --weight yolov8/yolov8l.pt`
+#### **inference(TODO: best.pt 위치에 따라 path 수정)**
 
-```bash
-python yolov8/inference.py --model {best.pt path}
-```
+`python yolov8/inference.py --model {best.pt path}`
 <br>
 
 ----
