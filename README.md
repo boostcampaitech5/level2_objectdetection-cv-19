@@ -82,12 +82,10 @@
 ### 2) YOLOv8
 #### **install requirements**
 
-`bash
-pip install -r yolov8/requirements.txt`
+`pip install -r yolov8/requirements.txt`
 #### **train**
 
-`bash
-python yolov8/train.py --train_cfg yolov8/V1_yolov8l_pt_img1024.yaml --weight yolov8/yolov8l.pt`
+`python yolov8/train.py --train_cfg yolov8/V1_yolov8l_pt_img1024.yaml --weight yolov8/yolov8l.pt`
 #### **inference(TODO: best.pt 위치에 따라 path 수정)**
 
 `python yolov8/inference.py --model {best.pt path}`
