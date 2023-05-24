@@ -62,19 +62,59 @@
 └── README.md
 ```
 ----
-## requirements
-- visdom==0.2.4
-- seaborn==0.12.2
-- albumentations==0.4.6
-- imgaug==0.4.0
-- pycocotools==2.0.6
-- opencv-python==4.7.0.72
-- tqdm==4.65.0
-- torchnet==0.0.4
-- pandas==1.1.5
-- map-boxes==1.0.5
-- jupyter==1.0.0
+## requirements path
+- mmdetection : `./mmdetection/requirements.txt`
+- yolo : `./yolov8/requirements.txt`
 
+----
+# **실행 방법**
+### 1) mmdetection 
+#### **`install requirements`**
+
+```bash
+pip install -r mmdetection/requirements.txt
+```
+#### **`train`**
+
+```bash
+python mmdetection/tools/train.py mmdetection/configs/custom/base_config.py
+```
+#### **`inference(TODO: folder 구조에 따라 config folder 수정)`**
+
+```bash
+python mmdetection/inference.py -cfg_folder {base_config folder path}
+```
+
+### 2) YOLOv8
+#### **`install requirements`**
+
+```bash
+pip install -r yolov8/requirements.txt
+```
+#### **`train`**
+
+```bash
+python yolov8/train.py --train_cfg yolov8/V1_yolov8l_pt_img1024.yaml --weight yolov8/yolov8l.pt
+```
+#### **`inference(TODO: best.pt 위치에 따라 path 수정)`**
+
+```bash
+python yolov8/inference.py --model {best.pt path}
+```
+<br>
+
+----
+## 실험 내용
+|분류|내용|
+  |-----|---|
+  |Dataset|**EDA** <br>- 일반 쓰레기를 잡기 어려움<br>- 쓰레기봉투 안에 쓰레기들의 존재<br><br>  **Dataset 구성**<br>- 이미지 당 30, 35, 40개 이상의 박스를 가지는 이미지를 제거한 데이터 셋 align 실험|
+  |MMDetection| **여러 구조에 대한 benchmarking 학습을 진행**<br>- 2 stage: Faster R-CNN, Cascade R-CNN, Mask R-CNN, Grid R-CNN<br>- 1 stage: RetinaNet, FreeAnchor, FCOS, Fovea, CornerNet, ATSS |
+  |Data augmentation| **Albumentation 조합 선택**<br>- RandomSizedBBoxSafeCrop<br>- OneOf(VerticalFlip, HorizontalFlip)<br>- ToGray<br>- GaussNoise<br>- OneOf(Blur, GaussianBlur, MedianBlur, MotionBlur)<br>- CLAHE<br>- RandomBrightnessContrast<br>- HueSaturationValue|
+  |Optimizer|- Stochastic Gradient Descent(SGD)와 AdamW의 비교|
+  |Focal Loss| - Focal Loss와 Cross Entropy Loss와의 비교|
+  |YOLOv8| - Input image size 업스케일링<br>- Localization loss function 변경<br>- Data augmentation 변경<br>- Model size 교체<br>- 추가 학습 진행<br>|
+  |Ensemble|- TTA (Test Time Augmentation)<br>- NMS (Non-Maximum Suppression)<br>- WBF (Weighted Box Fusion) |
+  |Pseudo-labeling|- 리더보드 기준 가장 좋았던 성능의 inference 결과에 포함되어 있는 bbox의 annotation 정보를 다시 train dataset으로 가져와서 학습 |
 
 ----
 ## 협업 툴 및 프로젝트 관리
@@ -98,18 +138,10 @@
   ![screenshot](./images/rabbitMQ.png)
 
 ----
+
 ## 프로젝트 결과
 **`최종 순위 13등`**<br><br>
 ![rank](./images/rank.png)
 ![output](./images/output.png)
 
-  |분류|내용|
-  |-----|---|
-  |Dataset|**EDA** <br>- 일반 쓰레기를 잡기 어려움<br>- 쓰레기봉투 안에 쓰레기들의 존재<br><br>  **Dataset 구성**<br>- 이미지 당 30, 35, 40개 이상의 박스를 가지는 이미지를 제거한 데이터 셋 align 실험|
-  |MMDetection| **여러 구조에 대한 benchmarking 학습을 진행**<br>- 2 stage: Faster R-CNN, Cascade R-CNN, Mask R-CNN, Grid R-CNN<br>- 1 stage: RetinaNet, FreeAnchor, FCOS, Fovea, CornerNet, ATSS |
-  |Data augmentation| **Albumentation 조합 선택**<br>- RandomSizedBBoxSafeCrop<br>- OneOf(VerticalFlip, HorizontalFlip)<br>- ToGray<br>- GaussNoise<br>- OneOf(Blur, GaussianBlur, MedianBlur, MotionBlur)<br>- CLAHE<br>- RandomBrightnessContrast<br>- HueSaturationValue|
-  |Optimizer|- Stochastic Gradient Descent(SGD)와 AdamW의 비교|
-  |Focal Loss| - Focal Loss와 Cross Entropy Loss와의 비교|
-  |YOLOv8| - Input image size 업스케일링<br>- Localization loss function 변경<br>- Data augmentation 변경<br>- Model size 교체<br>- 추가 학습 진행<br>|
-  |Ensemble|- TTA (Test Time Augmentation)<br>- NMS (Non-Maximum Suppression)<br>- WBF (Weighted Box Fusion) |
-  |Pseudo-labeling|- 리더보드 기준 가장 좋았던 성능의 inference 결과에 포함되어 있는 bbox의 annotation 정보를 다시 train dataset으로 가져와서 학습 |
+  
